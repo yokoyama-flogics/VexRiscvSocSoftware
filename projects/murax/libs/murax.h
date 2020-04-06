@@ -14,7 +14,9 @@
 #include "gpio.h"
 #include "uart.h"
 
+#ifndef CORE_HZ
 #define CORE_HZ 12000000
+#endif /* !defined(CORE_HZ) */
 
 #define GPIO_A    ((Gpio_Reg*)(0xF0000000))
 #define TIMER_PRESCALER ((Prescaler_Reg*)0xF0020000)
