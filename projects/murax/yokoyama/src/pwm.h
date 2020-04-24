@@ -2,7 +2,7 @@
 #define PWM_H_
 
 typedef struct {
-	volatile uint8_t WIDTH; // XXX  should be 32-bit entity?
+	volatile uint32_t WIDTH;
 } Pwm_Reg;
 
 #define PWM ((Pwm_Reg*) 0xf0011000)

@@ -3,6 +3,7 @@
 #define CORE_HZ 16000000
 #include <murax.h>
 #include "pwm.h"
+#include "spislave.h"
 
 
 void main() {
@@ -33,20 +34,46 @@ void main() {
 		result += a;
 		result += b + c;
 		for(uint32_t idx = 0;idx < 50000;idx++) asm volatile("");
-		GPIO_A->OUTPUT = (GPIO_A->OUTPUT & ~0x3F) | ((GPIO_A->OUTPUT + 1) & 0x3F);  //Counter on LED[5:0]
+		GPIO_A->OUTPUT = (GPIO_A->OUTPUT & ~0x3F) | ((GPIO_A->OUTPUT + 1) & 0x3F);	//Counter on LED[5:0]
 	}
 }
 
+void wait_tx_ready(int len)
+{
+	while ((UART->STATUS >> 16) < len)
+		;
+}
+
 void irqCallback(){
-	if(TIMER_INTERRUPT->PENDINGS & 1){  //Timer A interrupt
+	if(TIMER_INTERRUPT->PENDINGS & 1){	//Timer A interrupt
 		GPIO_A->OUTPUT ^= 0x80; //Toogle led 7
 		TIMER_INTERRUPT->PENDINGS = 1;
-        // *((int *)0xf0011000) += 1;
+		// *((int *)0xf0011000) += 1;
 	}
+
 	while(UART->STATUS & (1 << 9)){ //UART RX interrupt
-        volatile int rx = (UART->DATA) & 0xFF;
+		volatile int rx = (UART->DATA) & 0xFF;
 		UART->DATA = rx;
 		if (rx >= '0' && rx <= '9')
 			PWM->WIDTH = (rx - '0') * (255 / 9); // Assign PWM width
+	}
+
+	while (SPISLAVE->STATUS & 1) {	// SPI SLAVE interrupt
+		char c;
+		volatile int rx = (SPISLAVE->RX) & 0xffff;
+
+		wait_tx_ready(4 + 2 + 1);
+
+		UART->DATA = 0x0d;
+		UART->DATA = 0x0a;
+
+		for (int i = 3; i >= 0; i --) {
+			c = (rx & (0xf << (i * 4))) >> (i * 4);
+			if (c < 10)
+				c += '0';
+			else
+				c = c - 10 + 'a';
+			UART->DATA = c;
+		}
 	}
 }
