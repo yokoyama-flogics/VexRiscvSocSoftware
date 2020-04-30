@@ -14,9 +14,9 @@ void main() {
 	prescaler_init(TIMER_PRESCALER);
 	timer_init(TIMER_A);
 
-	TIMER_PRESCALER->LIMIT = 16000-1; //1 ms rate
+	TIMER_PRESCALER->LIMIT = 16000 - 1;	// 1 ms rate
 
-	TIMER_A->LIMIT = 1000-1;  //1 second rate
+	TIMER_A->LIMIT = 1000 - 1;	// 1 second rate
 	TIMER_A->CLEARS_TICKS = 0x00010002;
 
 	TIMER_INTERRUPT->PENDINGS = 0xF;
@@ -25,33 +25,47 @@ void main() {
 	GPIO_A->OUTPUT_ENABLE = 0x000000FF;
 	GPIO_A->OUTPUT = 0x00000000;
 
-	UART->STATUS = 2; //Enable RX interrupts
+	UART->STATUS = 2;	// Enable RX interrupts
 	UART->DATA = 'A';
 
-	PWM->WIDTH = 0; // Initialize PWM
+	PWM->WIDTH = 0;		// Initialize PWM
 
-	while(1){
+	while (1) {
 		result += a;
 		result += b + c;
-		for(uint32_t idx = 0;idx < 50000;idx++) asm volatile("");
-		GPIO_A->OUTPUT = (GPIO_A->OUTPUT & ~0x3F) | ((GPIO_A->OUTPUT + 1) & 0x3F);	//Counter on LED[5:0]
+
+		for (uint32_t idx = 0; idx < 50000; idx++)
+			asm volatile("");
+
+		// Counter on LED[5:0]
+		GPIO_A->OUTPUT =
+			(GPIO_A->OUTPUT & ~0x3F) | ((GPIO_A->OUTPUT + 1) & 0x3F);
+
+		// Check UART Rx break
+		if (UART->ERROR & (1 << 8))
+			GPIO_A->OUTPUT ^= 0x80; // Toggle led 7
 	}
 }
 
 void wait_tx_ready(int len)
 {
-	while ((UART->STATUS >> 16) < len)
-		;
+	volatile uint32_t save = GPIO_A->OUTPUT;
+
+	while ((UART->STATUS >> 16) < len) {
+		// To show CPU is still running
+		GPIO_A->OUTPUT ^= 0x80; // Toggle led 7
+	}
+
+	GPIO_A->OUTPUT = save;	// Recover original value
 }
 
 void irqCallback(){
-	if(TIMER_INTERRUPT->PENDINGS & 1){	//Timer A interrupt
-		GPIO_A->OUTPUT ^= 0x80; //Toogle led 7
+	if (TIMER_INTERRUPT->PENDINGS & 1) {	// Timer A interrupt
+		GPIO_A->OUTPUT ^= 0x80; // Toggle led 7
 		TIMER_INTERRUPT->PENDINGS = 1;
-		// *((int *)0xf0011000) += 1;
 	}
 
-	while(UART->STATUS & (1 << 9)){ //UART RX interrupt
+	while (UART->STATUS & (1 << 9)) { // UART RX interrupt
 		volatile int rx = (UART->DATA) & 0xFF;
 		UART->DATA = rx;
 		if (rx >= '0' && rx <= '9')

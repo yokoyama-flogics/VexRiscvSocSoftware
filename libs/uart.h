@@ -8,6 +8,7 @@ typedef struct
   volatile uint32_t STATUS;
   volatile uint32_t CLOCK_DIVIDER;
   volatile uint32_t FRAME_CONFIG;
+  volatile uint32_t ERROR;
 } Uart_Reg;
 
 enum UartParity {NONE = 0,EVEN = 1,ODD = 2};
