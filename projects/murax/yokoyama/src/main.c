@@ -6,6 +6,38 @@
 #include "spislave.h"
 
 
+void wait_tx_ready(int len)
+{
+	volatile uint32_t save = GPIO_A->OUTPUT;
+
+	while ((UART->STATUS >> 16) < len) {
+		// To show CPU is still running
+		GPIO_A->OUTPUT ^= 0x80; // Toggle led 7
+	}
+
+	GPIO_A->OUTPUT = save;	// Recover original value
+}
+
+void print_hex(unsigned int v, int digits)
+{
+	char c;
+
+	for (int i = digits - 1; i >= 0; i --) {
+		c = (v & (0xf << (i * 4))) >> (i * 4);
+		if (c < 10)
+			c += '0';
+		else
+			c = c - 10 + 'a';
+		UART->DATA = c;
+	}
+}
+
+void crlf(void)
+{
+	UART->DATA = 0x0d;
+	UART->DATA = 0x0a;
+}
+
 void main() {
 	volatile uint32_t a = 1, b = 2, c = 3;
 	uint32_t result = 0;
@@ -44,19 +76,11 @@ void main() {
 		// Check UART Rx break
 		if (UART->ERROR & (1 << 8))
 			GPIO_A->OUTPUT ^= 0x80; // Toggle led 7
+
+		wait_tx_ready(8 + 2 + 1);
+		crlf();
+		print_hex(*((volatile int*) 0x80000f00), 8);
 	}
-}
-
-void wait_tx_ready(int len)
-{
-	volatile uint32_t save = GPIO_A->OUTPUT;
-
-	while ((UART->STATUS >> 16) < len) {
-		// To show CPU is still running
-		GPIO_A->OUTPUT ^= 0x80; // Toggle led 7
-	}
-
-	GPIO_A->OUTPUT = save;	// Recover original value
 }
 
 void irqCallback(){
@@ -73,21 +97,10 @@ void irqCallback(){
 	}
 
 	while (SPISLAVE->STATUS & 1) {	// SPI SLAVE interrupt
-		char c;
 		volatile int rx = (SPISLAVE->RX) & 0xffff;
 
 		wait_tx_ready(4 + 2 + 1);
-
-		UART->DATA = 0x0d;
-		UART->DATA = 0x0a;
-
-		for (int i = 3; i >= 0; i --) {
-			c = (rx & (0xf << (i * 4))) >> (i * 4);
-			if (c < 10)
-				c += '0';
-			else
-				c = c - 10 + 'a';
-			UART->DATA = c;
-		}
+		crlf();
+		print_hex(rx, 4);
 	}
 }
