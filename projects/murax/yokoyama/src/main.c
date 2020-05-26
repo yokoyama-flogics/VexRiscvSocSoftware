@@ -77,9 +77,10 @@ void main() {
 		if (UART->ERROR & (1 << 8))
 			GPIO_A->OUTPUT ^= 0x80; // Toggle led 7
 
+		// Test of SimpleAxi4Master
 		wait_tx_ready(8 + 2 + 1);
 		crlf();
-		print_hex(*((volatile int*) 0x80000f00), 8);
+		print_hex(*((volatile int*) 0x90000f00), 8);
 	}
 }
 

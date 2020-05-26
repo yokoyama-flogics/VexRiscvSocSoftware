@@ -6,14 +6,14 @@ BENCH=no
 MULDIV=no
 
 
-SRCS = 	$(wildcard src/*.c) \
-		$(wildcard src/*.cpp)  \
-		$(wildcard src/*.S)
+SRCS =	$(wildcard src/*.c) \
+	$(wildcard src/*.cpp)  \
+	$(wildcard src/*.S)
 
 
 INC += -I../../../libs/
 INC += -I../libs/
-LDSCRIPT = ../libs/linker.ld
+LDSCRIPT = ./linker.ld
 
 include ../../../resources/gcc.mk
-include ../../../resources/subproject.mk
+include ./subproject.mk
