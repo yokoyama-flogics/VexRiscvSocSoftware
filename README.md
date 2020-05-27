@@ -1,10 +1,13 @@
-# VexRiscvSocSoftware for modified Murax (w/o XIP) port for TinyFPGA-BX
+# VexRiscvSocSoftware for modified Murax and Mini-Briey
 
 Original GitHub site is https://github.com/SpinalHDL/VexRiscvSocSoftware .
 
-I have just added [projects/murax/yokoyama](projects/murax/yokoyama)
-for additive PWM functionality to Murax SoC for TinyFPGA-BX
-(https://github.com/yokoyama-flogics/VexRiscv).
+I have prepared (or modified original demo code) for my own TinyFPGA BX
+demo code for Murax and Mini-Briey.
+
+Please refer this [VexRiscv Murax (w/o XiP) and Mini-Briey (with XiP)
+ports for TinyFPGA-BX](https://github.com/yokoyama-flogics/VexRiscv)
+repository for detail.
 
 **The following describes the original SpinalHDL/VexRiscvSocSoftware.**
 
