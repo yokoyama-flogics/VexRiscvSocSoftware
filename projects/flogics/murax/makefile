@@ -12,8 +12,8 @@ SRCS =	$(wildcard src/*.c) \
 
 
 INC += -I../../../libs/
-INC += -I../libs/
-LDSCRIPT = ./linker.ld
+INC += -I../../murax/libs/
+LDSCRIPT = ../../murax/libs/linker.ld
 
 include ../../../resources/gcc.mk
-include ./subproject.mk
+include ../../../resources/subproject.mk
