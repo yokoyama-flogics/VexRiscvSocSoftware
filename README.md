@@ -2,12 +2,35 @@
 
 Original GitHub site is https://github.com/SpinalHDL/VexRiscvSocSoftware .
 
-I have prepared (or modified original demo code) for my own TinyFPGA BX
-demo code for Murax and Mini-Briey.
-
+I have prepared (or modified original) demo code for Murax and Mini-Briey
+which run on TinyFPGA BX.
 Please refer this [VexRiscv Murax (w/o XiP) and Mini-Briey (with XiP)
 ports for TinyFPGA-BX](https://github.com/yokoyama-flogics/VexRiscv)
 repository for detail.
+
+## How to build demo code for TinyFPGA BX
+
+### Murax SoC (w/o XiP)
+
+```bash
+$ cd projects/flogics/murax
+$ make
+```
+
+### Mini-Briey SoC (with XiP)
+
+First, connect your TinyFPGA to a USB port.
+
+```bash
+$ cd projects/flogics/briey
+$ make
+```
+
+You can flash ```projects/flogics/briey/build/demo.bin``` by 'tinyprog -u'.
+
+```bash
+$ tinyprog -u projects/flogics/briey/build/demo.bin
+```
 
 **The following describes the original SpinalHDL/VexRiscvSocSoftware.**
 
